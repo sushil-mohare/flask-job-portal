@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <div class="logo" style="text-align: center; margin-bottom: 2rem;">JobPortal</div>
+        <h2 style="text-align: center; margin-bottom: 1.5rem;">Welcome Back</h2>
+
+        <form method="POST">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="form-group" style="position: relative;">
+                <input type="password" name="password" id="passwordField" placeholder="Password" required style="padding-right: 45px;">
+                <span onclick="togglePassword()" id="eyeIcon" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280; font-size: 1.1rem;">
+                    <i class="fas fa-eye"></i>
+                </span>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; color: #6b7280;">
+            Don't have an account? <a href="{{ url_for('register') }}" style="color: #667eea; text-decoration: none;">Register</a>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            var passwordField = document.getElementById('passwordField');
+            var eyeIcon = document.getElementById('eyeIcon');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        }
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1000;
+                     {% if category == 'success' %}background: #10b981;{% elif category == 'danger' %}background: #ef4444;{% elif category == 'warning' %}background: #f59e0b;{% else %}background: #3b82f6;{% endif %}">
+                    {{ message }}
+                </div>
+                <script>setTimeout(function(){ var f=document.querySelector('[style*="position: fixed; top: 20px"]'); if(f) f.remove(); }, 3000);</script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

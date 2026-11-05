@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Job - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('employer_profile') }}" class="nav-item"><i class="fas fa-building"></i> Company Profile</a>
+            <a href="{{ url_for('post_job') }}" class="nav-item active"><i class="fas fa-plus-circle"></i> Post a Job</a>
+            <a href="{{ url_for('view_candidates') }}" class="nav-item"><i class="fas fa-users"></i> View Candidates</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome"><i class="fas fa-plus-circle"></i> Post a New Job</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        <div class="card" style="max-width: 800px;">
+            <form method="POST">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Job Title</label>
+                    <input type="text" name="title" required placeholder="e.g., Senior Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Description</label>
+                    <textarea name="description" rows="5" required placeholder="Describe the role, responsibilities, and benefits..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-list"></i> Requirements</label>
+                    <textarea name="requirements" rows="5" placeholder="List required skills, experience, qualifications..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Location</label>
+                    <input type="text" name="location" placeholder="e.g., Mumbai, Pune, or Remote">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-rupee-sign"></i> Salary (in ₹)</label>
+                    <input type="text" name="salary" placeholder="e.g., ₹3,00,000 - ₹5,00,000 per annum">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> Job Type</label>
+                    <select name="job_type">
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Remote">Remote</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Freelance">Freelance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tags"></i> Category</label>
+                    <select name="category">
+                        <option value="">Select Category</option>
+                        <option value="IT & Software">IT & Software</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Education">Education</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Design">Design</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Management">Management</option>
+                        <option value="Human Resources">Human Resources</option>
+                        <option value="Customer Service">Customer Service</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-alt"></i> Expiry Date</label>
+                    <input type="date" name="expiry_date">
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Post Job</button>
+            </form>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                <script>setTimeout(() => { document.querySelector('.flash-message')?.remove(); }, 3000);</script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

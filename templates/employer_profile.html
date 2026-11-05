@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Profile - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('employer_profile') }}" class="nav-item active"><i class="fas fa-building"></i> Company Profile</a>
+            <a href="{{ url_for('post_job') }}" class="nav-item"><i class="fas fa-plus-circle"></i> Post a Job</a>
+            <a href="{{ url_for('view_candidates') }}" class="nav-item"><i class="fas fa-users"></i> View Candidates</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome">Company Profile</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        <div class="card" style="max-width: 800px;">
+            <form method="POST">
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" name="company_name" value="{{ profile.company_name or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Person</label>
+                    <input type="text" name="contact_person" value="{{ profile.contact_person or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Industry</label>
+                    <input type="text" name="industry" value="{{ profile.industry or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Company Description</label>
+                    <textarea name="description" rows="5" placeholder="Tell job seekers about your company...">{{ profile.description or '' }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                <script>setTimeout(() => { document.querySelector('.flash-message')?.remove(); }, 3000);</script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

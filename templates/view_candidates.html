@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Candidates - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">JobPortal</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('employer_profile') }}" class="nav-item"><i class="fas fa-building"></i> Company Profile</a>
+            <a href="{{ url_for('post_job') }}" class="nav-item"><i class="fas fa-plus-circle"></i> Post a Job</a>
+            <a href="{{ url_for('view_candidates') }}" class="nav-item active"><i class="fas fa-users"></i> View Candidates</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome"><i class="fas fa-users"></i> View Candidates</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-filter"></i> Select Job</div>
+            <form method="GET">
+                <select name="job_id" onchange="this.form.submit()" style="padding: 10px; border-radius: 8px; border: 1px solid #ddd; width: 100%; max-width: 400px;">
+                    <option value="">-- Select a Job --</option>
+                    {% for job in jobs %}
+                    <option value="{{ job.id }}" {% if selected_job_id|string == job.id|string %}selected{% endif %}>
+                        {{ job.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        {% if candidates %}
+        <div class="card">
+            <div class="card-title"><i class="fas fa-user-graduate"></i> Applicants ({{ candidates|length }})</div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb; background: #f9fafb;">Name</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb; background: #f9fafb;">Qualification</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb; background: #f9fafb;">Skills</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb; background: #f9fafb;">Status</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb; background: #f9fafb;">Resume</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb; background: #f9fafb;">Update</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb; background: #f9fafb;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for candidate in candidates %}
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;"><strong>{{ candidate.full_name }}</strong></td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ candidate.qualification or 'N/A' }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ candidate.skills or 'N/A' }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                                {% if candidate.status == 'pending' %}
+                                <span style="background: #fef3c7; color: #d97706; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Pending</span>
+                                {% elif candidate.status == 'shortlisted' %}
+                                <span style="background: #d1fae5; color: #10b981; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Shortlisted</span>
+                                {% elif candidate.status == 'hired' %}
+                                <span style="background: #dbeafe; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Hired</span>
+                                {% elif candidate.status == 'rejected' %}
+                                <span style="background: #fee2e2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Rejected</span>
+                                {% else %}
+                                <span style="background: #f3f4f6; color: #6b7280; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">{{ candidate.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                                {% if candidate.resume_filename %}
+                                <a href="{{ url_for('view_resume', seeker_id=candidate.seeker_id) }}" target="_blank" style="background: #3b82f6; color: white; padding: 6px 16px; border-radius: 4px; text-decoration: none; font-size: 13px; display: inline-block;">
+                                    <i class="fas fa-eye"></i> View Resume
+                                </a>
+                                {% else %}
+                                <span style="color: #9ca3af; font-size: 12px;"><i class="fas fa-file"></i> No Resume</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                                <form method="POST" action="{{ url_for('update_application_status', application_id=candidate.application_id) }}" style="display: inline;">
+                                    <select name="status" onchange="this.form.submit()" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd; font-size: 12px;">
+                                        <option value="pending" {% if candidate.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="shortlisted" {% if candidate.status == 'shortlisted' %}selected{% endif %}>Shortlist</option>
+                                        <option value="hired" {% if candidate.status == 'hired' %}selected{% endif %}>Hire</option>
+                                        <option value="rejected" {% if candidate.status == 'rejected' %}selected{% endif %}>Reject</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                                <button onclick="toggleDetails({{ candidate.seeker_id }})" style="background: #667eea; color: white; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                                    <i class="fas fa-eye"></i> Details
+                                </button>
+                            </td>
+                        </tr>
+                        <tr id="details-{{ candidate.seeker_id }}" style="display: none; background: #f9fafb;">
+                            <td colspan="7" style="padding: 16px; border-bottom: 1px solid #e5e7eb;">
+                                <div style="padding: 12px; background: #f9fafb; border-radius: 8px;">
+                                    <p style="margin: 5px 0;"><strong>Full Name:</strong> {{ candidate.full_name }}</p>
+                                    <p style="margin: 5px 0;"><strong>Qualification:</strong> {{ candidate.qualification or 'Not specified' }}</p>
+                                    <p style="margin: 5px 0;"><strong>Experience:</strong> {{ candidate.experience or 'Not specified' }}</p>
+                                    <p style="margin: 5px 0;"><strong>Skills:</strong> {{ candidate.skills or 'Not specified' }}</p>
+                                    <p style="margin: 5px 0;"><strong>About:</strong> {{ candidate.description or 'No description provided.' }}</p>
+                                    <p style="margin: 5px 0;"><strong>Applied On:</strong> {{ candidate.applied_at.strftime('%Y-%m-%d') if candidate.applied_at else 'N/A' }}</p>
+                                    {% if candidate.resume_filename %}
+                                    <p style="margin: 5px 0;">
+                                        <strong>Resume:</strong> 
+                                        <a href="{{ url_for('view_resume', seeker_id=candidate.seeker_id) }}" target="_blank" style="background: #3b82f6; color: white; padding: 6px 16px; border-radius: 4px; text-decoration: none; font-size: 13px; display: inline-block;">
+                                            <i class="fas fa-eye"></i> View Resume
+                                        </a>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% elif selected_job_id %}
+        <div class="card">
+            <div style="text-align: center; padding: 40px; color: #6b7280;">
+                <i class="fas fa-users" style="font-size: 48px; color: #9ca3af; display: block; margin-bottom: 16px;"></i>
+                <p>No applications for this job yet.</p>
+            </div>
+        </div>
+        {% elif jobs %}
+        <div class="card">
+            <div style="text-align: center; padding: 40px; color: #6b7280;">
+                <i class="fas fa-briefcase" style="font-size: 48px; color: #9ca3af; display: block; margin-bottom: 16px;"></i>
+                <p>Please select a job from the dropdown above.</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div style="text-align: center; padding: 40px; color: #6b7280;">
+                <i class="fas fa-plus-circle" style="font-size: 48px; color: #9ca3af; display: block; margin-bottom: 16px;"></i>
+                <p>You haven't posted any jobs yet.</p>
+                <a href="{{ url_for('post_job') }}" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; display: inline-block; margin-top: 12px;">
+                    <i class="fas fa-plus"></i> Post Your First Job
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleDetails(seekerId) {
+            var detailRow = document.getElementById('details-' + seekerId);
+            if (detailRow) {
+                if (detailRow.style.display === 'none' || detailRow.style.display === '') {
+                    detailRow.style.display = 'table-row';
+                } else {
+                    detailRow.style.display = 'none';
+                }
+            }
+        }
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1000; 
+                     {% if category == 'success' %}background: #10b981;{% elif category == 'danger' %}background: #ef4444;{% elif category == 'warning' %}background: #f59e0b;{% else %}background: #3b82f6;{% endif %}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var flash = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+                        if (flash) flash.remove();
+                    }, 5000);
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

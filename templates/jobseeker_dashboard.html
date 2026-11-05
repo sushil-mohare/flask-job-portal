@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSeeker Dashboard - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('jobseeker_profile') }}" class="nav-item"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('view_jobs') }}" class="nav-item"><i class="fas fa-briefcase"></i> View Jobs</a>
+            <a href="{{ url_for('saved_jobs') }}" class="nav-item"><i class="fas fa-bookmark"></i> Saved Jobs</a>
+            <a href="{{ url_for('track_jobs') }}" class="nav-item"><i class="fas fa-chart-line"></i> Track Jobs</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome">Welcome, {{ session.username }}</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="card" style="text-align: center;">
+                <i class="fas fa-briefcase" style="font-size: 2rem; color: #667eea;"></i>
+                <h3 style="margin-top: 0.5rem;">{{ applications|length }}</h3>
+                <p style="color: #6b7280;">Applications</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <i class="fas fa-bookmark" style="font-size: 2rem; color: #f59e0b;"></i>
+                <h3 style="margin-top: 0.5rem;">{{ saved_count }}</h3>
+                <p style="color: #6b7280;">Saved Jobs</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-user"></i> My Profile</div>
+            <div class="profile-info">
+                <p><strong>Name:</strong> {{ profile.full_name or 'Not set' }}</p>
+                <p><strong>Qualification:</strong> {{ profile.qualification or 'Not set' }}</p>
+                <p><strong>Experience:</strong> {{ profile.experience or 'Not set' }}</p>
+                <p><strong>Skills:</strong> {{ profile.skills or 'Not set' }}</p>
+                {% if profile.resume_filename %}
+                    <p><strong>Resume:</strong> <i class="fas fa-check-circle" style="color: #10b981;"></i> Uploaded</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-clock"></i> Recent Applications</div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Job Title</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Company</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Location</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Applied On</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ app.job_title }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ app.company_name }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ app.location or 'Remote' }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ app.applied_at.strftime('%Y-%m-%d') if app.applied_at else 'N/A' }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;"><span class="status-{{ app.status }}">{{ app.status|title }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" style="text-align: center; padding: 20px;">No applications yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1000; 
+                     {% if category == 'success' %}background: #10b981;{% elif category == 'danger' %}background: #ef4444;{% elif category == 'warning' %}background: #f59e0b;{% else %}background: #3b82f6;{% endif %}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var flash = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+                        if (flash) flash.remove();
+                    }, 3000);
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

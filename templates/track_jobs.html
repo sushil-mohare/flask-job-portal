@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Jobs - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('jobseeker_profile') }}" class="nav-item"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('view_jobs') }}" class="nav-item"><i class="fas fa-briefcase"></i> View Jobs</a>
+            <a href="{{ url_for('saved_jobs') }}" class="nav-item"><i class="fas fa-bookmark"></i> Saved Jobs</a>
+            <a href="{{ url_for('track_jobs') }}" class="nav-item active"><i class="fas fa-chart-line"></i> Track Jobs</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome">Track Your Applications</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        {% for app in applications %}
+            {% if app.status == 'hired' %}
+            <div class="notification-card hired" style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+                <i class="fas fa-trophy" style="font-size: 1.5rem;"></i>
+                <h4 style="margin: 8px 0;">🎉 Congratulations! You've Been Hired!</h4>
+                <p>You have been selected for the position of <strong>{{ app.job_title }}</strong> at <strong>{{ app.company_name }}</strong>.</p>
+            </div>
+            {% elif app.status == 'shortlisted' %}
+            <div class="notification-card shortlisted" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+                <i class="fas fa-star" style="font-size: 1.5rem;"></i>
+                <h4 style="margin: 8px 0;">✨ Great News! You've Been Shortlisted!</h4>
+                <p>Congratulations! You have been shortlisted for <strong>{{ app.job_title }}</strong> at <strong>{{ app.company_name }}</strong>.</p>
+            </div>
+            {% elif app.status == 'rejected' %}
+            <div class="notification-card rejected" style="background: linear-gradient(135deg, #6b7280, #4b5563); color: white; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+                <i class="fas fa-info-circle" style="font-size: 1.5rem;"></i>
+                <h4 style="margin: 8px 0;">Application Status Update</h4>
+                <p>Thank you for applying for <strong>{{ app.job_title }}</strong> at <strong>{{ app.company_name }}</strong>.</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-chart-line"></i> Application Status</div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Job Title</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Company</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Location</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Applied On</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;"><strong>{{ app.job_title }}</strong></td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ app.company_name }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ app.location or 'Remote' }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ app.applied_at.strftime('%Y-%m-%d') if app.applied_at else 'N/A' }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;"><span class="status-{{ app.status }}">{{ app.status|title }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" style="text-align: center; padding: 20px;">You haven't applied for any jobs yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1000; 
+                     {% if category == 'success' %}background: #10b981;{% elif category == 'danger' %}background: #ef4444;{% elif category == 'warning' %}background: #f59e0b;{% else %}background: #3b82f6;{% endif %}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var flash = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+                        if (flash) flash.remove();
+                    }, 5000);
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

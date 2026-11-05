@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal Admin</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin_users') }}" class="nav-item active"><i class="fas fa-users"></i> Manage Users</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome">Manage Users</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        <div class="card">
+            <div class="card-title">All Users</div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">ID</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Username</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Email</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Role</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Registered</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.id }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.username }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.email }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.role }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                                <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" style="background: #3b82f6; color: white; padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; display: inline-block; margin-right: 4px;">Edit</a>
+                                {% if user.id != session.user_id %}
+                                <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" onclick="return confirm('Are you sure you want to delete this user?')" style="background: #ef4444; color: white; padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; display: inline-block;">Delete</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1000; 
+                     {% if category == 'success' %}background: #10b981;{% elif category == 'danger' %}background: #ef4444;{% elif category == 'warning' %}background: #f59e0b;{% else %}background: #3b82f6;{% endif %}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var flash = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+                        if (flash) flash.remove();
+                    }, 3000);
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

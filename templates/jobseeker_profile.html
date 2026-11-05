@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('jobseeker_profile') }}" class="nav-item active"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('view_jobs') }}" class="nav-item"><i class="fas fa-briefcase"></i> View Jobs</a>
+            <a href="{{ url_for('saved_jobs') }}" class="nav-item"><i class="fas fa-bookmark"></i> Saved Jobs</a>
+            <a href="{{ url_for('track_jobs') }}" class="nav-item"><i class="fas fa-chart-line"></i> Track Jobs</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome"><i class="fas fa-user"></i> My Profile</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        <div class="card" style="max-width: 800px;">
+            <div class="card-title"><i class="fas fa-edit"></i> Edit Profile</div>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="full_name" value="{{ profile.full_name or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Qualification</label>
+                    <input type="text" name="qualification" value="{{ profile.qualification or '' }}" placeholder="e.g., B.Tech in Computer Science">
+                </div>
+                <div class="form-group">
+                    <label>Experience</label>
+                    <input type="text" name="experience" value="{{ profile.experience or '' }}" placeholder="e.g., 3 years as Software Developer">
+                </div>
+                <div class="form-group">
+                    <label>Skills</label>
+                    <input type="text" name="skills" value="{{ profile.skills or '' }}" placeholder="e.g., Python, JavaScript, SQL">
+                </div>
+                <div class="form-group">
+                    <label>About Me</label>
+                    <textarea name="description" rows="4" placeholder="Tell employers about yourself...">{{ profile.description or '' }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-file-upload"></i> Upload Resume (PDF, DOC, DOCX - Max 5MB)</label>
+                    <input type="file" name="resume" accept=".pdf,.doc,.docx">
+                    {% if profile.resume_filename %}
+                        <p style="margin-top: 0.5rem; color: #10b981;">
+                            <i class="fas fa-check-circle"></i> Current Resume: {{ profile.resume_filename }}
+                        </p>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Profile</button>
+            </form>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                <script>setTimeout(() => { document.querySelector('.flash-message')?.remove(); }, 3000);</script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

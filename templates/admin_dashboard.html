@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal Admin</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin_users') }}" class="nav-item"><i class="fas fa-users"></i> Manage Users</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome">Admin Dashboard</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        <div class="card">
+            <div class="card-title">System Overview</div>
+            <p>Welcome, {{ session.username }}. You have full administrative access.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Quick Actions</div>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-primary">Manage Users</a>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Recent Users</div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">ID</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Username</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Email</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Role</th>
+                            <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; background: #f9fafb;">Registered</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users[:5] %}
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.id }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.username }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.email }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.role }}</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1000; 
+                     {% if category == 'success' %}background: #10b981;{% elif category == 'danger' %}background: #ef4444;{% elif category == 'warning' %}background: #f59e0b;{% else %}background: #3b82f6;{% endif %}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var flash = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+                        if (flash) flash.remove();
+                    }, 3000);
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

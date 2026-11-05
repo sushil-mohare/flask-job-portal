@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Jobs - JobPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">JobPortal</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('jobseeker_profile') }}" class="nav-item"><i class="fas fa-user"></i> My Profile</a>
+            <a href="{{ url_for('view_jobs') }}" class="nav-item"><i class="fas fa-briefcase"></i> View Jobs</a>
+            <a href="{{ url_for('saved_jobs') }}" class="nav-item active"><i class="fas fa-bookmark"></i> Saved Jobs</a>
+            <a href="{{ url_for('track_jobs') }}" class="nav-item"><i class="fas fa-chart-line"></i> Track Jobs</a>
+            <a href="{{ url_for('logout') }}" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="welcome"><i class="fas fa-bookmark"></i> Saved Jobs</div>
+            <a href="{{ url_for('logout') }}" class="btn-danger">Logout</a>
+        </div>
+
+        {% if jobs %}
+            {% for job in jobs %}
+            <div style="background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-size: 1.2rem; font-weight: 600; color: #1f2937; margin-bottom: 5px;">{{ job.title }}</div>
+                <div style="color: #667eea; font-weight: 500; margin-bottom: 5px;">{{ job.company_name }}</div>
+                <div style="display: flex; gap: 15px; margin: 10px 0; color: #6b7280; font-size: 0.9rem; flex-wrap: wrap;">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ job.location or 'Remote' }}</span>
+                    <span><i class="fas fa-rupee-sign"></i> {{ job.salary or 'Negotiable' }}</span>
+                    <span><i class="fas fa-clock"></i> {{ job.job_type or 'Full-time' }}</span>
+                    {% if job.category %}
+                    <span><i class="fas fa-tag"></i> {{ job.category }}</span>
+                    {% endif %}
+                    <span><i class="fas fa-calendar-alt"></i> Saved: {{ job.saved_at.strftime('%Y-%m-%d') if job.saved_at else 'N/A' }}</span>
+                </div>
+                <div style="color: #4b5563; margin: 10px 0; line-height: 1.5;">{{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+                    <a href="{{ url_for('apply_job', job_id=job.id) }}" style="background: #10b981; color: white; padding: 6px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; display: inline-block; {% if job.id in applied_jobs %}background: #9ca3af; cursor: not-allowed;{% endif %}">
+                        {% if job.id in applied_jobs %}<i class="fas fa-check"></i> Applied{% else %}<i class="fas fa-paper-plane"></i> Apply{% endif %}
+                    </a>
+                    <a href="{{ url_for('save_job', job_id=job.id) }}" style="background: #ef4444; color: white; padding: 6px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; display: inline-block;">
+                        <i class="fas fa-trash"></i> Remove
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="card">
+            <div style="text-align: center; padding: 40px; color: #6b7280;">
+                <i class="fas fa-bookmark" style="font-size: 48px; color: #9ca3af; display: block; margin-bottom: 16px;"></i>
+                <p>You haven't saved any jobs yet.</p>
+                <a href="{{ url_for('view_jobs') }}" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; display: inline-block; margin-top: 12px;">
+                    <i class="fas fa-search"></i> Browse Jobs
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; z-index: 1000; 
+                     {% if category == 'success' %}background: #10b981;{% elif category == 'danger' %}background: #ef4444;{% elif category == 'warning' %}background: #f59e0b;{% else %}background: #3b82f6;{% endif %}">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                <script>
+                    setTimeout(function() {
+                        var flash = document.querySelector('[style*="position: fixed; top: 20px; right: 20px;"]');
+                        if (flash) flash.remove();
+                    }, 3000);
+                </script>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
+</html>
